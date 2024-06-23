@@ -1,183 +1,243 @@
 import random as rand
 import networkx
+import math
 import numpy as np
-import matplotlib.pyplot as plt
+from dataclasses import dataclass
+from enum import Enum
 
+class TaskType(Enum):
+    HC = "high-critical"
+    LC = "low-critical"
 
-MAX_DEADLINE = 10000
-MAX_PERIOD = 10000
-MAX_EXECUTION_TIME = 10
-
+@dataclass
 class Resource:
-    def __init__(self, id: int):
-        self.id = id
+    id: str
 
-    def __str__(self):
-        return self.id
+@dataclass
+class Node:
+    id: str
+    wcet_hi: int
+    wcet_lo: int
+    resource: Resource = None
 
-class Job:
-    def __init__(self, id: int, critical: bool):
-        self.id = id
-        self.critical = critical
-        self.wcet_low = rand.randint(1, MAX_EXECUTION_TIME)
-        if critical:
-            self.wcet_high = rand.randint(self.wcet_low, MAX_EXECUTION_TIME)
-        self.resources: list[Resource] = []
+    def __str__(self) -> str:
+        return f"Node: {self.id}, WCET_HI: {self.wcet_hi}, WCET_LO: {self.wcet_lo}, Resource: {self.resource.id if self.resource else None}"
 
-    # TODO: check with TA how should this happens
-    def create_critical_section(self, resource: list[Resource]) -> None:
-        n = rand.randint(1, len(resources))
-        self.resources = rand.sample(resources, n)
+@dataclass
+class Edge:
+    src: Node
+    sink: Node
 
-
+@dataclass
 class Task:
-    def __init__(
-        self,
-        id: int,
-        deadline: int,
-        period: int,
-        jobs: list[Job],
-        dependency_graph: list[tuple[int, int]],
-    ):
-        self.id = id
-        self.deadline = deadline
-        self.period = period
-        self.jobs = jobs
-        self.dependency_graph = dependency_graph
+    id: int
+    period: int
+    wcet : int
+    nodes: list[Node]
+    edges: list[Edge]
+    task_type: TaskType
 
-    @staticmethod
-    def generate_task(id: int, critical: bool, resources: list[Resource]):
-        m = rand.randint(1, 1)
-        num_jobs = (m + 2) * (2**m) - 1
-        jobs: list[Job] = []
-        for i in range(num_jobs):
-            j = Job(i + 1, critical)
-            jobs.append(j)
-        if critical:
-            s = sum([j.wcet_high for j in jobs])
-        else:
-            s = sum([j.wcet_low for j in jobs])
-        period = rand.randint(s, MAX_PERIOD)
-        deadline = rand.randint(s, period)
-        dependency_graph = Task.FFT(m)
+    def get_wcet(self) -> int:
+        return sum([node.wcet_hi for node in self.nodes])
+    
+    def utilization(self) -> float:
+        return self.get_wcet() / self.period
+    
+    def do_need_resource(self, resource: Resource) -> bool:
+        return any([node.resource == resource for node in self.nodes])
+    
+    def nearest_deadline(self, time: int) -> int:
+        return self.period - (time % self.period)
 
-        num_critical_section = rand.randint(1, min(num_jobs, 16))
-        critical_job_ids = rand.sample(range(1, num_jobs + 1), num_critical_section)
-        for job_id in critical_job_ids:
-            job = jobs[job_id - 1]
-            job.create_critical_section(resources)
+    def __str__(self) -> str:
+        return f"Task: {self.id}, Period: {self.period}, WCET: {self.wcet}"
 
-        return Task(id, deadline, period, jobs, dependency_graph)
+@dataclass
+class Job:
+    id: int
+    task: Task
+    arrival: int
+    deadline: int
 
-    @staticmethod
-    def FFT(mlg: int):
-        edges: list[tuple[int, int]] = []
-        for i in range(2, 2 ** (mlg + 1)):
-            edges.append((i // 2, i))
+def FFT(mlg: int) -> tuple[list[int], list[tuple[int, int]]]:
+    edges: list[tuple[int, int]] = []
+    for i in range(2, 2 ** (mlg + 1)):
+        edges.append((i // 2, i))
 
-        label = 2**mlg
-        for j in range(mlg):
-            for k in range(2 ** (mlg)):
-                edges.append((label + k, (2**mlg) + label + k))
-                edges.append((label + k, ((label + k) ^ (2**j)) + (2**mlg)))
-            label += 2**mlg
+    label = 2**mlg
+    for j in range(mlg):
+        for k in range(2 ** (mlg)):
+            edges.append((label + k, (2**mlg) + label + k))
+            edges.append((label + k, ((label + k) ^ (2**j)) + (2**mlg)))
+        label += 2**mlg
+    nodes = [i + 1 for i in range(2 ** (mlg + 1) - 1 + mlg * (2 ** mlg))]
+    return nodes, edges
 
-        return edges
+def get_critical_path(nodes: list[Node], edges: list[Edge]) -> list[Node]:
+    dp: dict[str, int] = {}
+    degree_in: dict[str, int] = {}
+    for edge in edges:
+        degree_in[edge.sink.id] = degree_in.get(edge.sink.id, 0) + 1
+    sources = [node for node in nodes if degree_in.get(node.id, 0) == 0]
+    for node in sources:
+        dp[node.id] = node.wcet_hi
+    while sources:
+        node = sources.pop()
+        for edge in edges:
+            if edge.src.id == node.id:
+                degree_in[edge.sink.id] -= 1
+                dp[edge.sink.id] = max(dp.get(edge.sink.id, 0), dp[node.id] + edge.sink.wcet_hi)
+                if degree_in.get(edge.sink.id, 0) == 0:
+                    sources.append(edge.sink)
+    return max(dp.values())
 
-class CEDF:
-    def __int__(self, tasks: list[Task], resources: list[Resource]):
+resources_count = rand.randint(1, 5)
+resources = [Resource(id=f"R{i + 1}") for i in range(resources_count)]
+
+def generate_task(task_id: int, task_type: TaskType) -> Task:
+    graph_nodes, graph_edges = FFT(1)
+    nodes: list[Node] = []
+    for node_id in graph_nodes:
+        wcet_hi = rand.randint(5, 10)
+        wcet_lo = wcet_hi if task_type == TaskType.LC else int(0.6 * wcet_hi)
+        nodes.append(Node(id=f"T{task_id}-J{node_id}", wcet_hi=wcet_hi, wcet_lo=wcet_lo))
+
+    edges: list[Edge] = []
+    for edge in graph_edges:
+        src = nodes[edge[0] - 1]
+        sink = nodes[edge[1] - 1]
+        edges.append(Edge(src=src, sink=sink))
+
+    critical_path = get_critical_path(nodes, edges)
+    x = 1
+    while x < critical_path:
+        x *= 2
+    period = rand.choice([2 * x, 4 * x])
+    wcet = sum([node.wcet_hi for node in nodes])
+
+    critical_nodes_count = rand.randint(1, min(10, len(nodes)))
+    critical_nodes = rand.choices(nodes, k=rand.randint(1, critical_nodes_count))
+    for node in critical_nodes:
+        node.resource = rand.choice(resources)
+
+    return Task(id=f"T{task_id}", period=period, wcet=wcet, nodes=nodes, edges=edges, task_type=task_type)
+
+# random number between 5 and 10
+task_count = 10
+tasks = []
+for i in range(task_count):
+    task_type = TaskType.HC if rand.random() < 0.5 else TaskType.LC
+    tasks.append(generate_task(i, task_type))
+
+# remove tasks with utilization > 1.0
+trash_tasks = [task for task in tasks if task.utilization() > 1.0]
+for trash_task in trash_tasks:
+    tasks.remove(trash_task)
+
+while sum([task.utilization() for task in tasks]) > 1:
+    trash_task = rand.choice(tasks)
+    tasks.remove(trash_task)
+
+class CriticallyEDF:
+    def __init__(self, tasks: list[Task], resources: list[Resource]):
+        print("CriticallyEDF")
+        for task in tasks:
+            print(10 * "-")
+            print(task)
+            print(10 * "-")
+            for node in task.nodes:
+                print(node)
+                
+        
         self.tasks = tasks
         self.resources = resources
-        self.is_free = [True] * len(resources)
 
-    def psi(self, resource: Resource):
-        pass
+        self.counter = 1
+        self.current_time = 0
+        self.allocated_by: dict[str, Task] = {}
+        self.execution_time: dict[str, int] = {}
+        self.jobs: list[Job] = []
+        self.in_degree: dict[str, int] = {}
+        for task in tasks:
+            for edge in task.edges:
+                self.in_degree[edge.sink.id] = self.in_degree.get(edge.sink.id, 0) + 1
+        self.hyperperiod = np.lcm.reduce([task.period for task in tasks])
 
-    def pi(self, resource: Resource, time: int):
-        pass
+    def psi(self, resource: Resource, task: Task) -> int:
+        result = math.inf
+        for i, t in enumerate(self.tasks):
+            if t == task:
+                continue
+            if t.do_need_resource(resource):
+                result = min(result, t.nearest_deadline(self.current_time))
+
+    def __resource_ceiling(self, resource: Resource) -> int:
+        if not self.allocated_by.get(resource.id, None):
+            return math.inf
+        return self.current_time + self.psi(resource, self.allocated_by[resource.id])
     
+    def __resource_request_deadline(self, resource: Resource) -> int:
+        if not self.allocated_by.get(resource, None):
+            return math.inf
+        return self.allocated_by[resource.id].nearest_deadline(self.current_time) # TODO: check if this is correct
+
+    def __system_ceiling(self) -> int:
+        result = math.inf
+        for resource in self.resources:
+            result = min(result, self.__resource_ceiling(resource)) # TODO: after fixing `__resource_request_deadline`
+        return result
+    
+    def __create_periodic_jobs(self):
+        for task in self.tasks:
+            if self.current_time % task.period == 0:
+                job = Job(id=self.counter, task=task, arrival=self.current_time, deadline=self.current_time + task.period)
+                self.jobs.append(job)
+                self.counter += 1
+                self.execution_time = {node.id: 0 for node in task.nodes}
+
+    def __execute_job(self, job: Job):
+        selected_node = None
+        for node in job.task.nodes:
+            if self.in_degree.get(node.id, 0) > 0 or self.execution_time.get(node.id, 0) == node.wcet_lo:
+                continue
+            selected_node = node
+            break
+        if selected_node != None:
+            print(f"Executing Job: {job.id}, Task: {job.task.id}, Node: {selected_node.id}")
+        if not selected_node:
+            raise Exception("Not Schedulable 2")
+        if selected_node.resource and self.allocated_by.get(selected_node.resource.id, None) not in [None, job.task]: 
+            raise Exception("Not Schedulable 3")
+        self.execution_time[selected_node.id] = self.execution_time.get(selected_node.id, 0) + 1
+        if self.execution_time[selected_node.id] == selected_node.wcet_lo:
+            for edge in job.task.edges:
+                if edge.src.id == selected_node.id:
+                    self.in_degree[edge.sink.id] -= 1
+            if selected_node.resource:
+                self.allocated_by[selected_node.resource.id] = None
+        for node in job.task.nodes:
+            if self.execution_time.get(node.id, 0) < node.wcet_lo:
+                return False
+        return True
+        
+
     def schedule(self):
-        pass
+        while self.current_time < self.hyperperiod:
+            self.__create_periodic_jobs()
+            if not self.jobs:
+                self.current_time += 1
+                continue
 
-
-def show(t: Task):
-    g = networkx.DiGraph()
-    print(t.dependency_graph)
-    g.add_nodes_from([job.id for job in t.jobs])
-    for src, sink in t.dependency_graph:
-        g.add_edge(src, sink)
-
-    levels = np.zeros(len(t.jobs) + 1, dtype=int)
-    for src, sink in t.dependency_graph:
-        if levels[sink] == 0:
-            levels[sink] = levels[src] + 1
-
-    max_level = int(np.max(levels))
-    levels_width = np.zeros(max_level + 1, dtype=int)
-    for level in levels:
-        levels_width[level] += 1
-    levels_width[0] = 1
-
-    max_width = max(levels_width)
-    layout = networkx.spring_layout(g)
-    x_array = np.zeros(max_level + 1, dtype=int)
-    for i in range(len(t.jobs)):
-        level = levels[i + 1]
-        x: int | None = None
-        x = (
-            (x_array[level] - ((levels_width[level] - 1) / 2))
-            * (max_width / levels_width[level])
-            * 10
-        )
-
-        layout[i + 1] = (x, -10 * level)
-        x_array[level] += 1
-
-    node_attributes = {
-        "node_color": "pink",
-        "node_size": 400,
-        "font_size": 12,
-        "font_color": "black",
-    }
-    edge_attributes = {
-        "edge_color": "gray",
-        "width": 1,
-        "arrows": True,
-        "arrowstyle": "-|>",
-        "arrowsize": 12,
-    }
-    plt.figure(figsize=(6, 6))
-    networkx.draw_networkx(
-        g, layout, with_labels=True, **node_attributes, **edge_attributes
-    )
-
-    plt.title(f"Task {t.id}")
-
-    plt.show()
-
-def generate_resources(num_resources: int) -> list[Resource]:
-    resources: list[Resource] = []
-    for i in range(num_resources):
-        resources.append(Resource(i + 1))
-    return resources
-
-
-def generate_tasks(num_lc_tasks: int, num_hc_tasks: int, resources: list[Resource]) -> list[Task]:
-    tasks: list[Task] = []
-    tasks = [Task.generate_task(i + 1, True, resources) for i in range(num_hc_tasks)] + [
-        Task.generate_task(i + 1 + num_lc_tasks, False, resources) for i in range(num_lc_tasks)
-    ]
-    return tasks
-
-
-ratio = 1
-num_resources = 3
-num_lc_tasks = 1
-num_hc_tasks = num_lc_tasks * ratio
-
-# num_resources = rand.randint(1, 5)
-# num_lc_tasks = rand.randint(5, 10)
-# num_hc_tasks = num_lc_tasks * ratio
-
-resources = generate_resources(num_resources)
-tasks = generate_tasks(num_lc_tasks, num_hc_tasks, resources)
+            job = min(self.jobs, key=lambda job: (job.task.task_type.value, job.deadline))
+            if job.deadline >= self.__system_ceiling():
+                raise Exception("Not Schedulable 1")
+            if self.__execute_job(job):
+                self.jobs.remove(job)
+            
+            self.current_time += 1
+        
+        return True 
+        
+    
+cedf = CriticallyEDF(tasks, resources)
+cedf.schedule()
