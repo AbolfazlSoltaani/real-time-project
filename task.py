@@ -4,6 +4,7 @@ import math
 import numpy as np
 from dataclasses import dataclass
 from enum import Enum
+import matplotlib.pyplot as plt
 
 class TaskType(Enum):
     HC = "high-critical"
@@ -112,7 +113,7 @@ def generate_task(task_id: int, task_type: TaskType) -> Task:
     x = 1
     while x < critical_path:
         x *= 2
-    period = rand.choice([2 * x, 4 * x])
+    period = rand.choice([2 * x, 8 * x])
     wcet = sum([node.wcet_hi for node in nodes])
 
     critical_nodes_count = rand.randint(1, min(10, len(nodes)))
@@ -158,10 +159,15 @@ class CriticallyEDF:
         self.execution_time: dict[str, int] = {}
         self.jobs: list[Job] = []
         self.in_degree: dict[str, int] = {}
-        for task in tasks:
-            for edge in task.edges:
-                self.in_degree[edge.sink.id] = self.in_degree.get(edge.sink.id, 0) + 1
         self.hyperperiod = np.lcm.reduce([task.period for task in tasks])
+
+        self.fig, self.ax = plt.subplots()
+        self.row: dict[str, int] = {}
+        row_counter = 0
+        for i, task in enumerate(tasks):
+            for j, node in enumerate(task.nodes):
+                self.row[node.id] = row_counter
+                row_counter += 1
 
     def psi(self, resource: Resource, task: Task) -> int:
         result = math.inf
@@ -193,7 +199,10 @@ class CriticallyEDF:
                 job = Job(id=self.counter, task=task, arrival=self.current_time, deadline=self.current_time + task.period)
                 self.jobs.append(job)
                 self.counter += 1
-                self.execution_time = {node.id: 0 for node in task.nodes}
+                for node in task.nodes:
+                    self.execution_time[node.id] = 0
+                for edge in task.edges:
+                    self.in_degree[edge.sink.id] = self.in_degree.get(edge.sink.id, 0) + 1
 
     def __execute_job(self, job: Job):
         selected_node = None
@@ -203,12 +212,13 @@ class CriticallyEDF:
             selected_node = node
             break
         if selected_node != None:
-            print(f"Executing Job: {job.id}, Task: {job.task.id}, Node: {selected_node.id}")
+            print(f"Current Time: {self.current_time}, Executing Job: {job.id}, Task: {job.task.id}, Node: {selected_node.id}")
         if not selected_node:
             raise Exception("Not Schedulable 2")
         if selected_node.resource and self.allocated_by.get(selected_node.resource.id, None) not in [None, job.task]: 
             raise Exception("Not Schedulable 3")
         self.execution_time[selected_node.id] = self.execution_time.get(selected_node.id, 0) + 1
+        self.ax.broken_barh([(self.current_time, 1)], (self.row[selected_node.id], 0.5), facecolors='gray')
         if self.execution_time[selected_node.id] == selected_node.wcet_lo:
             for edge in job.task.edges:
                 if edge.src.id == selected_node.id:
@@ -220,7 +230,6 @@ class CriticallyEDF:
                 return False
         return True
         
-
     def schedule(self):
         while self.current_time < self.hyperperiod:
             self.__create_periodic_jobs()
@@ -235,9 +244,20 @@ class CriticallyEDF:
                 self.jobs.remove(job)
             
             self.current_time += 1
-        
+
+        self.visualize()
         return True 
-        
+    
+    def visualize(self):
+        self.ax.set_xlabel('Time')
+        self.ax.set_ylabel('Tasks')
+        self.ax.set_title('Critically EDF')
+        y_max = sum([len(task.nodes) for task in self.tasks])
+        self.ax.set_xticks([i for i in range(0, self.hyperperiod, 10)])
+        self.ax.set_yticks([i for i in range(y_max)])
+        self.ax.set_yticklabels([node.id for task in self.tasks for node in task.nodes])
+        self.ax.grid(True)
+        plt.show()
     
 cedf = CriticallyEDF(tasks, resources)
 cedf.schedule()
