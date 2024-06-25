@@ -1,0 +1,144 @@
+CriticallyEDF
+----------
+Task: T1, Period: 32, WCET: 31
+----------
+Node: T1-J1, WCET_HI: 9, WCET_LO: 5, Resource: R1
+Node: T1-J2, WCET_HI: 5, WCET_LO: 3, Resource: R3
+Node: T1-J3, WCET_HI: 7, WCET_LO: 4, Resource: R2
+Node: T1-J4, WCET_HI: 5, WCET_LO: 3, Resource: R1
+Node: T1-J5, WCET_HI: 5, WCET_LO: 3, Resource: R2
+----------
+Task: T6, Period: 64, WCET: 37
+----------
+Node: T6-J1, WCET_HI: 10, WCET_LO: 10, Resource: R3
+Node: T6-J2, WCET_HI: 10, WCET_LO: 10, Resource: R2
+Node: T6-J3, WCET_HI: 7, WCET_LO: 7, Resource: R1
+Node: T6-J4, WCET_HI: 5, WCET_LO: 5, Resource: R1
+Node: T6-J5, WCET_HI: 5, WCET_LO: 5, Resource: R3
+Current Time: 0, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 1, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 2, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 3, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 4, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 5, Executing Job: 1, Task: T1, Node: T1-J2
+Current Time: 6, Executing Job: 1, Task: T1, Node: T1-J2
+Current Time: 7, Executing Job: 1, Task: T1, Node: T1-J2
+Current Time: 8, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 9, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 10, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 11, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 12, Executing Job: 1, Task: T1, Node: T1-J4
+Current Time: 13, Executing Job: 1, Task: T1, Node: T1-J4
+Current Time: 14, Executing Job: 1, Task: T1, Node: T1-J4
+Current Time: 15, Executing Job: 1, Task: T1, Node: T1-J5
+Current Time: 16, Executing Job: 1, Task: T1, Node: T1-J5
+Current Time: 17, Executing Job: 1, Task: T1, Node: T1-J5
+Current Time: 18, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 19, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 20, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 21, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 22, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 23, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 24, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 25, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 26, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 27, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 28, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 29, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 30, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 31, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 32, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 33, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 34, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 35, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 36, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 37, Executing Job: 3, Task: T1, Node: T1-J2
+Current Time: 38, Executing Job: 3, Task: T1, Node: T1-J2
+Current Time: 39, Executing Job: 3, Task: T1, Node: T1-J2
+Current Time: 40, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 41, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 42, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 43, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 44, Executing Job: 3, Task: T1, Node: T1-J4
+Current Time: 45, Executing Job: 3, Task: T1, Node: T1-J4
+Current Time: 46, Executing Job: 3, Task: T1, Node: T1-J4
+Current Time: 47, Executing Job: 3, Task: T1, Node: T1-J5
+Current Time: 48, Executing Job: 3, Task: T1, Node: T1-J5
+Current Time: 49, Executing Job: 3, Task: T1, Node: T1-J5
+Current Time: 50, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 51, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 52, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 53, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 54, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 55, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 56, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 57, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 58, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 59, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 60, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 61, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 62, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 63, Executing Job: 2, Task: T6, Node: T6-J4
+Speedup factor failed  1
+CriticallyEDF
+----------
+Task: T1, Period: 32, WCET: 31
+----------
+Node: T1-J1, WCET_HI: 9, WCET_LO: 5, Resource: R1
+Node: T1-J2, WCET_HI: 5, WCET_LO: 3, Resource: R3
+Node: T1-J3, WCET_HI: 7, WCET_LO: 4, Resource: R2
+Node: T1-J4, WCET_HI: 5, WCET_LO: 3, Resource: R1
+Node: T1-J5, WCET_HI: 5, WCET_LO: 3, Resource: R2
+----------
+Task: T6, Period: 64, WCET: 37
+----------
+Node: T6-J1, WCET_HI: 10, WCET_LO: 10, Resource: R3
+Node: T6-J2, WCET_HI: 10, WCET_LO: 10, Resource: R2
+Node: T6-J3, WCET_HI: 7, WCET_LO: 7, Resource: R1
+Node: T6-J4, WCET_HI: 5, WCET_LO: 5, Resource: R1
+Node: T6-J5, WCET_HI: 5, WCET_LO: 5, Resource: R3
+Current Time: 0, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 1, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 2, Executing Job: 1, Task: T1, Node: T1-J1
+Current Time: 3, Executing Job: 1, Task: T1, Node: T1-J2
+Current Time: 4, Executing Job: 1, Task: T1, Node: T1-J2
+Current Time: 5, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 6, Executing Job: 1, Task: T1, Node: T1-J3
+Current Time: 7, Executing Job: 1, Task: T1, Node: T1-J4
+Current Time: 8, Executing Job: 1, Task: T1, Node: T1-J4
+Current Time: 9, Executing Job: 1, Task: T1, Node: T1-J5
+Current Time: 10, Executing Job: 1, Task: T1, Node: T1-J5
+Current Time: 11, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 12, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 13, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 14, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 15, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 16, Executing Job: 2, Task: T6, Node: T6-J1
+Current Time: 17, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 18, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 19, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 20, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 21, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 22, Executing Job: 2, Task: T6, Node: T6-J2
+Current Time: 23, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 24, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 25, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 26, Executing Job: 2, Task: T6, Node: T6-J3
+Current Time: 27, Executing Job: 2, Task: T6, Node: T6-J4
+Current Time: 28, Executing Job: 2, Task: T6, Node: T6-J4
+Current Time: 29, Executing Job: 2, Task: T6, Node: T6-J4
+Current Time: 30, Executing Job: 2, Task: T6, Node: T6-J5
+Current Time: 31, Executing Job: 2, Task: T6, Node: T6-J5
+Current Time: 32, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 33, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 34, Executing Job: 3, Task: T1, Node: T1-J1
+Current Time: 35, Executing Job: 3, Task: T1, Node: T1-J2
+Current Time: 36, Executing Job: 3, Task: T1, Node: T1-J2
+Current Time: 37, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 38, Executing Job: 3, Task: T1, Node: T1-J3
+Current Time: 39, Executing Job: 3, Task: T1, Node: T1-J4
+Current Time: 40, Executing Job: 3, Task: T1, Node: T1-J4
+Current Time: 41, Executing Job: 3, Task: T1, Node: T1-J5
+Current Time: 42, Executing Job: 3, Task: T1, Node: T1-J5
+Current Time: 43, Executing Job: 2, Task: T6, Node: T6-J5
+Speedup factor passed  1.5
